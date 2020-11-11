@@ -51,17 +51,19 @@ def updateTask(request, task_id):
     except:
         raise Http404("Task does not exist")
 
-    current_task = model_to_dict(task)
+    # print(task["title"])
     data = JSONParser().parse(request)
+    print("title" in data)
+    if "title" in data:
+        task.title = data["title"]
+    if "pub_date" in data:
+        task.pub_date = data["pub_date"]
+    if "description" in data:
+        task.description = data["description"]
 
-    for i in data:
-        current_task[i] = data[i]
+    task.save()
 
-    taskSerializer = TaskSerializer(data=current_task)
-    if taskSerializer.is_valid():
-        taskSerializer.save()
-        return JsonResponse(taskSerializer.data, status=201)
-    return JsonResponse(taskSerializer.errors, status=400)
+    return JsonResponse(model_to_dict(task), status=201, safe=False)
 
 
 @api_view(["DELETE"])
